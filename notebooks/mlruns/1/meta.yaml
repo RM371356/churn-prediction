@@ -1,0 +1,4 @@
+artifact_location: file:///C:/Projects/Tech-Challenge-Fase-01/churn-prediction/notebooks/mlruns/1
+experiment_id: '1'
+lifecycle_stage: active
+name: churn-baseline
