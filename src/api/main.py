@@ -1,1 +1,0 @@
-# FastAPI app for churn prediction

@@ -1,1 +1,0 @@
-# Pydantic schemas for request and response models in the FastAPI app
