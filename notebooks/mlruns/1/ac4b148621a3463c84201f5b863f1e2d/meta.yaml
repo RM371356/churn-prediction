@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Projects/Tech-Challenge-Fase-01/churn-prediction/notebooks/mlruns/1/ac4b148621a3463c84201f5b863f1e2d/artifacts
+end_time: 1776597306263
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+name: ''
+run_id: ac4b148621a3463c84201f5b863f1e2d
+run_uuid: ac4b148621a3463c84201f5b863f1e2d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1776597301180
+status: 3
+tags: []
+user_id: alexi

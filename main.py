@@ -1,6 +1,5 @@
 def main():
-    print("Hello from churn-prediction-01!")
-
+    print("churn-prediction...")
 
 if __name__ == "__main__":
     main()
