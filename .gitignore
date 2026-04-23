@@ -16,5 +16,13 @@ cronograma_churn.md
 # Dataset variables
 variables.txt
 
+<<<<<<< HEAD
 
 
+=======
+# Zip files
+*.zip
+
+# Pytest cache
+.pytest_cache/
+>>>>>>> f80d9693aed7e1aa52c56c32e91dd5314c4fa84f
