@@ -2,7 +2,7 @@
 # Model Card — Churn Prediction MLP
 
 ## Data
-2026-04-19 22:13
+2026-04-23 19:18
 
 ---
 
@@ -35,11 +35,11 @@ Modelo para previsão de churn de clientes.
 
 ## Métricas
 
-- Accuracy: 0.7275
-- Precision: 0.4917
-- Recall: 0.7914
-- F1-score: 0.6066
-- ROC-AUC: 0.8105
+- Accuracy: 0.7303
+- Precision: 0.4948
+- Recall: 0.7647
+- F1-score: 0.6008
+- ROC-AUC: 0.8118
 
 ---
 
@@ -68,4 +68,4 @@ Modelo para previsão de churn de clientes.
 
 ## Atualização
 
-Recomenda-se re-treinar o modelo periodicamente com novos dados.
+Recomenda-se re-treinar o modelo periodicamente com novos dados para manter a performance e reduzir o risco de drift.

@@ -54,12 +54,12 @@ class TestPerformance:
         peak_mb = peak / 1024 / 1024
         assert peak_mb < 500, f"Peak memory: {peak_mb:.1f}MB (limit: 500MB)"
 
-    # PF-05 -- API startup time (placeholder until FastAPI is implemented)
+    # PF-05 -- API startup time
     def test_api_startup_time(self):
         try:
             import importlib
             start = time.perf_counter()
-            importlib.import_module("src.api.main")
+            importlib.import_module("src.app.main")
             elapsed = time.perf_counter() - start
             assert elapsed < 5.0, f"API module import took {elapsed:.2f}s"
         except ImportError:

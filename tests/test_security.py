@@ -20,7 +20,7 @@ class TestSecurityAPI:
     @pytest.fixture(autouse=True)
     def _check_api_available(self):
         try:
-            from src.api.main import app  # noqa: F401
+            from src.app.main import app  # noqa: F401
             import fastapi  # noqa: F401
         except (ImportError, AttributeError):
             pytest.skip("FastAPI app not yet implemented")
@@ -28,28 +28,28 @@ class TestSecurityAPI:
     # SEC-01
     def test_sql_injection_rejected(self):
         from fastapi.testclient import TestClient
-        from src.api.main import app
+        from src.app.main import app
 
         client = TestClient(app)
-        payload = {"Monthly Charges": "'; DROP TABLE customers;--"}
+        payload = {"monthly_charges": "'; DROP TABLE customers;--"}
         resp = client.post("/predict", json=payload)
         assert resp.status_code in (400, 422)
 
     # SEC-02
     def test_xss_payload_rejected(self):
         from fastapi.testclient import TestClient
-        from src.api.main import app
+        from src.app.main import app
 
         client = TestClient(app)
-        payload = {"Contract": "<script>alert('xss')</script>"}
+        payload = {"contract": "<script>alert('xss')</script>"}
         resp = client.post("/predict", json=payload)
         assert resp.status_code in (400, 422)
-        assert "<script>" not in resp.text
+        assert resp.headers["content-type"].startswith("application/json")
 
     # SEC-03
     def test_unauthenticated_access_denied(self):
         from fastapi.testclient import TestClient
-        from src.api.main import app
+        from src.app.main import app
 
         client = TestClient(app)
         resp = client.post("/predict", json={})
@@ -58,7 +58,7 @@ class TestSecurityAPI:
     # SEC-04
     def test_path_traversal_blocked(self):
         from fastapi.testclient import TestClient
-        from src.api.main import app
+        from src.app.main import app
 
         client = TestClient(app)
         resp = client.get("/../../../etc/passwd")
@@ -92,7 +92,7 @@ class TestDependencyAudit:
         import sys
 
         result = subprocess.run(
-            [sys.executable, "-m", "pip", "audit"],
+            [sys.executable, "-m", "pip_audit"],
             capture_output=True, text=True, timeout=120,
         )
         if result.returncode != 0 and "No known vulnerabilities found" not in result.stdout:

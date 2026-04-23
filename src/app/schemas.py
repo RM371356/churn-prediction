@@ -1,16 +1,12 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
-# Define o modelo de dados de entrada para a API usando Pydantic
+
 class InputData(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
+
     gender: str
     tenure_months: int = Field(..., alias="tenure")
     monthly_charges: float
     contract: str
     internet_service: str
     payment_method: str
-
-    # Configurações adicionais para o modelo Pydantic
-    class Config:
-        # Permitir a população de campos usando os nomes dos campos (alias) e ignorar campos extras
-        populate_by_name = True
-        extra = "ignore"
