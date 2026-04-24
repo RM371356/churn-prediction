@@ -11,7 +11,12 @@ _MODEL = None
 _PREPROCESSOR = None
 
 def get_resources():
-    """Carrega artefatos sob demanda (lazy load) e armazena em cache no escopo global."""
+    """
+        Carrega artefatos sob demanda (lazy load) e armazena em cache no escopo global.
+        Retorna o modelo e o pré-processador carregados, garantindo que sejam carregados apenas uma vez durante a vida útil da aplicação.
+        Returns:
+            tuple: Uma tupla contendo o modelo e o pré-processador carregados.
+    """
     # Usar variáveis globais para armazenar o modelo e o pré-processador carregados
     global _MODEL, _PREPROCESSOR
     if _MODEL is None:
@@ -28,8 +33,13 @@ def get_resources():
     return _MODEL, _PREPROCESSOR
 
 def predict(data: Dict[str, Any]) -> Dict[str, float]:
-    """Realiza a previsão de churn para um cliente com base nos dados de entrada fornecidos."""
-    
+    """
+        Realiza a previsão de churn para um cliente com base nos dados de entrada fornecidos.
+        Args:
+            data (Dict[str, Any]): Um dicionário contendo os dados de entrada para a previsão, onde as chaves são os nomes das features e os valores são os valores correspondentes.
+        Returns:
+            Dict[str, float]: Um dicionário contendo a probabilidade de churn e a previsão binária.
+    """
     # Carregar recursos (modelo e pré-processador)
     model, preprocessor = get_resources()
 

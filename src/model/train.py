@@ -20,7 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 def run_training():
-    """Função principal para executar o pipeline de treinamento do modelo de churn prediction."""
+    """
+        Função principal para executar o pipeline de treinamento do modelo de churn prediction.
+        Esta função carrega e prepara os dados, treina o modelo, avalia o desempenho, gera um model card e salva o modelo treinado e o pré-processador para uso futuro na API.
+    """
     logger.info("Iniciando pipeline de treino")
 
     # Carrega e prepara os dados

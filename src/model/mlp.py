@@ -1,10 +1,11 @@
-# O arquivo mlp.py define a arquitetura da rede neural MLP (Multi-Layer Perceptron) para o modelo de previsão de churn.
-
 import torch.nn as nn
 
 # A classe MLP herda de nn.Module, que é a base para todos os modelos em PyTorch
 class MLP(nn.Module):
-    """Definição da arquitetura da rede neural MLP para previsão de churn."""
+    """
+        Definição da arquitetura da rede neural MLP para previsão de churn.
+        A rede é composta por camadas lineares, funções de ativação ReLU, normalização em lote e dropout para evitar overfitting.
+    """
     def __init__(self, input_dim):
         super().__init__()
 
@@ -48,4 +49,11 @@ class MLP(nn.Module):
         )
 
     def forward(self, x):
+        """
+            Define a passagem direta da rede, onde os dados de entrada são processados pelas camadas definidas na arquitetura.
+            Args:
+                x: Os dados de entrada (features) que serão processados pela rede.
+            Returns:
+                O resultado da passagem direta, que é a saída da rede após processar os dados de entrada.
+        """
         return self.net(x)

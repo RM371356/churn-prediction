@@ -1,7 +1,15 @@
 import pandas as pd
 
-def preprocess_input(data: dict, features, scaler):
-    """Recebe um dicionário de dados de entrada, aplica o mesmo pré-processamento usado no treinamento e retorna os dados prontos para inferência."""
+def preprocess_input(data: dict, features: list, scaler: object):
+    """
+        Recebe um dicionário de dados de entrada, aplica o mesmo pré-processamento usado no treinamento e retorna os dados prontos para inferência.
+        Args:
+            data (dict): Os dados de entrada para a previsão, fornecidos como um dicionário.
+            features (list): A lista de features esperadas pelo modelo, usada para garantir que o DataFrame resultante tenha as colunas corretas.
+            scaler (object): O objeto de pré-processamento usado para escalar os dados, garantindo que os dados de entrada sejam processados da mesma forma que os dados de treinamento.
+        Returns:
+            X (np.ndarray): Os dados pré-processados prontos para inferência.
+    """
     df = pd.DataFrame([data])
 
     # Limpar e padronizar os nomes das colunas para evitar problemas de alinhamento

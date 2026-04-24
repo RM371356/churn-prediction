@@ -4,7 +4,13 @@ import torch
 from mlp import MLP
 
 def load_model(input_dim):
-    """Carrega o modelo treinado a partir do arquivo salvo."""
+    """
+        Carrega o modelo treinado a partir do arquivo salvo.
+        Args:
+            input_dim: O número de features de entrada para o modelo, necessário para criar a arquitetura correta da rede.
+        Returns:
+            O modelo carregado pronto para fazer previsões.
+    """
 
     # Criar uma nova instância do modelo com o input_dim correto
     model = MLP(input_dim)
@@ -19,8 +25,14 @@ def load_model(input_dim):
 
 
 def predict(model, X):
-    """Faz previsões usando o modelo carregado e retorna as probabilidades de churn."""
-    
+    """
+        Faz previsões usando o modelo carregado e retorna as probabilidades de churn.
+        Args:
+            model: O modelo carregado.
+            X: Os dados de entrada (features) para os quais fazer previsões.
+        Returns:
+            As probabilidades de churn para cada cliente.
+    """
     with torch.no_grad():
         # Fazer a previsão usando o modelo carregado
         logits = model(X)

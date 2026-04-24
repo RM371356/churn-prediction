@@ -9,7 +9,13 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 
 def load_and_prepare(path):
-    """Carrega os dados de um arquivo Excel, realiza o pré-processamento e retorna os dados prontos para treinamento e teste, além do preprocessor para uso futuro."""
+    """
+        Carrega os dados de um arquivo Excel, realiza o pré-processamento e retorna os dados prontos para treinamento e teste, além do preprocessor para uso futuro.
+        Args:
+            path: O caminho para o arquivo Excel contendo os dados.
+        Returns:
+            Os dados preparados para treinamento e teste, além do preprocessor.
+    """
     df = pd.read_excel(path)
     
     # Padronizar nomes das colunas (remover espaços, colocar em minúsculas)

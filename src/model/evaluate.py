@@ -3,7 +3,15 @@ import torch
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
 
 def evaluate(model, X_test, y_test):
-    """Avalia o modelo usando os dados de teste e retorna um dicionário com as métricas de avaliação."""
+    """
+        Avalia o modelo usando os dados de teste e retorna um dicionário com as métricas de avaliação.
+        Args:
+            model: O modelo treinado a ser avaliado.
+            X_test: Os dados de teste (features).
+            y_test: Os rótulos verdadeiros para os dados de teste.
+        Returns:
+            dict: Um dicionário contendo as métricas de avaliação (accuracy, precision, recall, f1, roc_auc).
+    """
     model.eval()
 
     # Converter os dados de teste para tensor
