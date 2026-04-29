@@ -1,10 +1,13 @@
-import torch
+from typing import Any
+
 import joblib
 import pandas as pd
-from typing import Dict, Any
+import torch
 
 from src.config.settings import MODEL_PATH, PREPROCESSOR_PATH, THRESHOLD
 from src.model.mlp import MLP
+from src.monitoring.business_monitor import log_prediction
+from src.utils.logger import logger
 
 # Inicializa recursos globais
 _MODEL = None
@@ -32,7 +35,7 @@ def get_resources():
         
     return _MODEL, _PREPROCESSOR
 
-def predict(data: Dict[str, Any]) -> Dict[str, float]:
+def predict(data: dict[str, Any]) -> dict[str, float]:
     """
         Realiza a previsão de churn para um cliente com base nos dados de entrada fornecidos.
         Args:
@@ -77,8 +80,20 @@ def predict(data: Dict[str, Any]) -> Dict[str, float]:
 
         # Aplicar sigmoid para obter a probabilidade de churn
         prob = torch.sigmoid(logits).item()
+        
+        prediction = int(prob > THRESHOLD)
 
-    return {
-        "probability": prob,
-        "prediction": int(prob > THRESHOLD)
-    }
+        log_prediction(
+            customer_id=data.get("customerid", "unknown"),
+            prediction=prediction,
+            probability=prob,
+        )
+
+        logger.info(
+            f"prediction_generated probability={round(prob, 4)} prediction={prediction}"
+        )
+
+        return {
+            "probability": prob,
+            "prediction": prediction,
+        }

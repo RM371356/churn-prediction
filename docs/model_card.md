@@ -2,27 +2,18 @@
 # Model Card — Churn Prediction MLP
 
 ## Data
-2026-04-24 20:46
+2026-04-28 22:45
 
 ---
 
 ## Objetivo
-Este modelo foi desenvolvido com o objetivo de prever a probabilidade de churn (cancelamento) de clientes em uma empresa de telecomunicações.
+Modelo para previsão de churn de clientes.
+O objetivo é identificar clientes com alta probabilidade de cancelamento para ações de retenção.
 
-A solução permite identificar clientes com maior risco de evasão, possibilitando a criação de estratégias de retenção mais eficientes.
 ---
 
-
-## Problema de Negócio
-
-O churn representa uma perda direta de receita para a empresa. Antecipar quais clientes possuem maior probabilidade de cancelamento permite:
-
-Reduzir perdas financeiras
-Direcionar campanhas de retenção
-Melhorar a experiência do cliente
-
 ## Dados
-- Dataset: Telco Customer Churn
+
 - Número de registros: 5634
 - Número de features: 5324
 - Distribuição target:
@@ -40,32 +31,33 @@ Melhorar a experiência do cliente
   "batch_size": 64,
   "early_stopping": true
 }
+- Pré-processamento: Imputação de valores ausentes e escalonamento (StandardScaler)
+- Treinado com BCEWithLogitsLoss e otimizador Adam
+- Peso para classe positiva ajustado para lidar com desbalanceamento
+- Treinado por 100 épocas com batch size de 64
+- Early stopping aplicado para evitar overfitting
+- Threshold de classificação ajustado para maximizar recall, reduzindo falsos negativos
+- Modelo avaliado usando métricas de acurácia, precisão, recall, F1-score e AUC-ROC
+- Modelo salvo para uso em produção via API REST (FastAPI)
 
 ---
 
 ## Métricas
 
-- Accuracy: 0.7303
-- Precision: 0.4948
-- Recall: 0.7647
-- F1-score: 0.6008
-- ROC-AUC: 0.8118
-
-
-## Pipeline
-O pipeline do modelo inclui:
-
-- Pré-processamento dos dados
-- Engenharia de features
-- Seleção de atributos
-- Modelo de classificação
+- Accuracy: 0.7402
+- Precision: 0.5076
+- Recall: 0.7166
+- F1-score: 0.5942
+- ROC-AUC: 0.8052
 
 ---
 
 ## Threshold
 
 - Valor utilizado: 0.5
-- Estratégia: Ajustado para maximizar recall (reduzir falso negativo)
+- Estratégia: Ajustado para maximizar recall (reduzir falso negativo), importante para retenção de clientes.
+- Sensível ao balanceamento entre precisão e recall, escolha do threshold impacta diretamente na performance do modelo em produção.
+- Recomendação: Monitorar e ajustar o threshold periodicamente com base no feedback do modelo em produção para manter a performance ideal.
 
 ---
 
@@ -74,6 +66,10 @@ O pipeline do modelo inclui:
 - Pode ter viés em categorias pouco representadas
 - Sensível à qualidade dos dados de entrada
 - Performance depende do balanceamento de classes
+- Pode não capturar relações complexas entre features sem ajustes adicionais
+- Modelo pode ser afetado por drift de dados ao longo do tempo, exigindo monitoramento contínuo
+- Modelo pode não generalizar bem para dados muito diferentes do conjunto de treinamento, exigindo validação cuidadosa antes de uso em produção
+- Modelo pode ser sensível a outliers, exigindo tratamento adequado dos dados de entrada para garantir previsões confiáveis
 
 ---
 
@@ -81,19 +77,16 @@ O pipeline do modelo inclui:
 
 - API REST (FastAPI)
 - Pipeline consistente com treinamento
-- Preprocessor versionado
-- Identificação de clientes em risco
-- Apoio a campanhas de retenção
-- Priorização de atendimento
+- Preprocessor versionado para garantir consistência
+- Monitoramento de performance e drift de dados recomendado
+- Logs de previsões e métricas para análise contínua
 
 ---
 
 ## Atualização
 
-Recomenda-se re-treinar o modelo periodicamente com novos dados para manter a performance e reduzir o risco de drift, fazer a atualização dos pipelines e ajustes em features.
+- Recomenda-se re-treinar o modelo periodicamente com novos dados para manter a performance e reduzir o risco de drift.
+- Monitorar métricas de performance em produção e ajustar o modelo ou o threshold conforme necessário para garantir que o modelo continue a atender aos objetivos de negócio.
+- Manter o model card atualizado com as informações mais recentes sobre o modelo, métricas e uso em produção para garantir transparência e facilitar a comunicação com stakeholders.
+- Documentar quaisquer mudanças significativas no modelo, como alterações na arquitetura, parâmetros ou dados de treinamento, para manter um histórico claro do desenvolvimento do modelo ao longo do tempo.
 
-## Versão do Modelo
-
- - Versão: 1.0
- - Data: 05/05/2026
- - Status: Produção

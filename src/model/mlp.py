@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 # A classe MLP herda de nn.Module, que é a base para todos os modelos em PyTorch
 class MLP(nn.Module):
     """

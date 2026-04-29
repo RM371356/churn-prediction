@@ -3,15 +3,11 @@
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.compose import ColumnTransformer
-from sklearn.dummy import DummyClassifier
-from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold, cross_validate
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from tests.conftest import DROP_COLS, TARGET_COL, make_synthetic_df, build_preprocessor
+from tests.conftest import DROP_COLS, TARGET_COL, build_preprocessor, make_synthetic_df
 
 
 def _build_pipeline_for(X):

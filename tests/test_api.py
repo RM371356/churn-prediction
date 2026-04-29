@@ -7,6 +7,7 @@ def _get_client():
     """Attempt to import and build a TestClient for the FastAPI app."""
     try:
         from fastapi.testclient import TestClient
+
         from src.app.main import app
 
         if not hasattr(app, "routes") or not app.routes:

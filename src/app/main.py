@@ -1,6 +1,7 @@
 from fastapi import FastAPI
-from src.app.routes import router
+
 from src.app.middleware import LatencyMiddleware
+from src.app.routes import router
 
 # Cria a aplicação FastAPI
 app = FastAPI(title="Churn Prediction API")

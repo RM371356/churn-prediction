@@ -130,7 +130,8 @@ def make_synthetic_df(n_rows: int = 200, random_state: int = 42) -> pd.DataFrame
     rng = np.random.default_rng(random_state)
     contracts = rng.choice(["Month-to-month", "One year", "Two year"], n_rows)
     internet = rng.choice(["DSL", "Fiber optic", "No"], n_rows)
-    yes_no = lambda: rng.choice(["Yes", "No"], n_rows)
+    def yes_no():
+        return rng.choice(["Yes", "No"], n_rows)
 
     return pd.DataFrame({
         "CustomerID": [f"CUST-{i:04d}" for i in range(n_rows)],
@@ -170,7 +171,6 @@ def make_synthetic_df(n_rows: int = 200, random_state: int = 42) -> pd.DataFrame
         "CLTV": rng.integers(2000, 7000, n_rows),
         "Churn Reason": rng.choice(["Moved", "Competitor", "Price", ""], n_rows),
     })
-
 
 @pytest.fixture
 def synthetic_df():

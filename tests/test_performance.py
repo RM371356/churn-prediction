@@ -3,7 +3,6 @@
 import time
 import tracemalloc
 
-import numpy as np
 import pytest
 
 

@@ -3,6 +3,7 @@
 import torch
 from mlp import MLP
 
+
 def load_model(input_dim):
     """
         Carrega o modelo treinado a partir do arquivo salvo.

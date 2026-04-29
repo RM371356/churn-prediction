@@ -1,12 +1,15 @@
 # O arquivo prepare_data.py é responsável por carregar os dados brutos, realizar o pré-processamento e preparar os dados para o treinamento do modelo.
-import torch
-import pandas as pd
 import numpy as np
+import pandas as pd
+import torch
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+from src.monitoring.drift_monitor import save_baseline
+
 
 def load_and_prepare(path):
     """
@@ -31,6 +34,10 @@ def load_and_prepare(path):
 
     X = df.drop(columns=[target_col])
     y = df[target_col]
+
+    # Salvar as estatísticas de baseline para as colunas numéricas, que serão usadas posteriormente para detectar drift nos dados de produção
+    save_baseline(df)
+    print("Baseline gerado com sucesso")
 
     # Identificar colunas numéricas e categóricas
     num_cols = X.select_dtypes(include=np.number).columns

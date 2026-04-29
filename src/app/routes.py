@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+
 from src.app.schemas import InputData
 from src.services.model_service import predict
 from src.utils.logger import logger

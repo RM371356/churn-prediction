@@ -3,8 +3,6 @@
 import pathlib
 import re
 
-import numpy as np
-import pandas as pd
 import pytest
 
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -20,14 +18,16 @@ class TestSecurityAPI:
     @pytest.fixture(autouse=True)
     def _check_api_available(self):
         try:
-            from src.app.main import app  # noqa: F401
             import fastapi  # noqa: F401
+
+            from src.app.main import app  # noqa: F401
         except (ImportError, AttributeError):
             pytest.skip("FastAPI app not yet implemented")
 
     # SEC-01
     def test_sql_injection_rejected(self):
         from fastapi.testclient import TestClient
+
         from src.app.main import app
 
         client = TestClient(app)
@@ -38,6 +38,7 @@ class TestSecurityAPI:
     # SEC-02
     def test_xss_payload_rejected(self):
         from fastapi.testclient import TestClient
+
         from src.app.main import app
 
         client = TestClient(app)
@@ -49,6 +50,7 @@ class TestSecurityAPI:
     # SEC-03
     def test_unauthenticated_access_denied(self):
         from fastapi.testclient import TestClient
+
         from src.app.main import app
 
         client = TestClient(app)
@@ -58,6 +60,7 @@ class TestSecurityAPI:
     # SEC-04
     def test_path_traversal_blocked(self):
         from fastapi.testclient import TestClient
+
         from src.app.main import app
 
         client = TestClient(app)
@@ -134,5 +137,5 @@ class TestMLflowDataPrivacy:
                 continue
 
         assert not violations, (
-            f"PII data found in MLflow artifacts:\n" + "\n".join(violations[:10])
+            "PII data found in MLflow artifacts:\n" + "\n".join(violations[:10])
         )

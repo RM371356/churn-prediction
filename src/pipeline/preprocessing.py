@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def preprocess_input(data: dict, features: list, scaler: object):
     """
         Recebe um dicionário de dados de entrada, aplica o mesmo pré-processamento usado no treinamento e retorna os dados prontos para inferência.

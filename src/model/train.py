@@ -1,15 +1,24 @@
 # Pipeline completo de treinamento do modelo de churn prediction
+import logging
 import os
+
+import joblib
 import pandas as pd
 import torch
-import logging
-import joblib
+
+from src.config.settings import (
+    DATA_PATH,
+    EPOCH,
+    MODEL_CARD_PATH,
+    MODEL_DIR,
+    MODEL_PATH,
+    PREPROCESSOR_PATH,
+    THRESHOLD,
+)
+from src.model.evaluate import evaluate
 from src.model.mlp import MLP
 from src.model.prepare_data import load_and_prepare
-from src.model.evaluate import evaluate
-
 from src.utils.model_card import generate_model_card
-from src.config.settings import DATA_PATH, MODEL_DIR, MODEL_PATH, PREPROCESSOR_PATH, EPOCH, MODEL_CARD_PATH, THRESHOLD
 
 # Garantir que o diretório para salvar o modelo exista
 os.makedirs(MODEL_DIR, exist_ok=True)

@@ -3,13 +3,9 @@
 import warnings
 
 import numpy as np
-import pandas as pd
 import pytest
-from sklearn.dummy import DummyClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold, cross_validate
 from sklearn.metrics import make_scorer, precision_score
-
+from sklearn.model_selection import StratifiedKFold, cross_validate
 
 SCORING = {
     "f1": "f1",

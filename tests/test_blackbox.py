@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd
-import pytest
 
 
 def _make_single_customer(overrides: dict, X_template: pd.DataFrame) -> pd.DataFrame:

@@ -1,4 +1,5 @@
 import torch
+
 from src.model.mlp import MLP
 
 # Carrega o modelo salvo e prepara para inferência
