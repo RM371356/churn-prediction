@@ -1,9 +1,15 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
 [project]
-name = "churn-prediction-01"
+name = "churn-prediction"
 version = "0.1.0"
-description = "Add your description here"
+description = "Churn prediction with PyTorch + FastAPI"
 readme = "README.md"
 requires-python = ">=3.11"
+
 dependencies = [
     "fastapi>=0.136.0",
     "matplotlib>=3.10.8",
@@ -12,25 +18,69 @@ dependencies = [
     "openpyxl>=3.1.0",
     "pandas>=2.2,<3",
     "protobuf>=4",
+    "pytest>=9.0.3",
+    "ruff>=0.15.12",
     "scikit-learn>=1.8.0",
     "seaborn>=0.13.2",
     "torch>=2.11.0",
     "uvicorn>=0.44.0",
 ]
 
+
 [project.optional-dependencies]
-test = [
+dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",
+    "ruff",
     "scipy>=1.14.0",
+    "httpx>=0.28.0",
+    "pip-audit"
 ]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+exclude = [
+    ".venv",
+    "__pycache__",
+    "notebooks"
 ]
+
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP"
+]
+
+ignore = [
+    "E501"
+]
+
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "."
+]
+
+testpaths = [
+    "tests"
+]
+
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+]
+
 filterwarnings = [
     "ignore:Type google._upb:DeprecationWarning",
-    "ignore::FutureWarning:mlflow.*",
+    "ignore::FutureWarning:mlflow.*"
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
 ]
