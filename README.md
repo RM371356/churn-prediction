@@ -398,7 +398,11 @@ churn-prediction/
 │   ├── monitoring.md                # estratégia de monitoramento
 │   └── ROTEIRO_VIDEO_STAR.md        # roteiro de apresentação
 │
-└── mlruns/                          # tracking do MLflow (raiz)
+|── mlruns/                          # tracking do MLflow (raiz)
+├── docker-compose.yml               # Orquestrador de containers
+├── Dockerfile                       # script para construir uma imagem Docker
+├── infra/
+│   └── prometheus.yml               # Config Prometheus (Monitoramento e alerta)
 ```
 
 ---
@@ -415,6 +419,101 @@ churn-prediction/
 
 O modelo prioriza **Recall** para minimizar falsos negativos (clientes que cancelam sem serem identificados).
 
+---
+
+## Docker
+- ### Pré-requisitos
+```
+1- Docker instalado
+    Bash => docker --version
+
+2- Docker Compose disponível
+    Bash => docker compose version
+
+3- Abrir o CMD na pasta do projeto
+    Bash => cd C:\Projects\Tech-Challenge-Fase-01\churn-prediction
+
+4- Executar o docker compose
+    Bash => docker compose up --build
+
+    O que vai acontecer?
+      [+] Building...
+      [+] Running...
+
+      churn-api  | Uvicorn running on http://0.0.0.0:8000
+      mlflow     | Listening on http://0.0.0.0:5000
+
+5- Acessando os serviços
+  API → http://localhost:8000/docs
+  MLflow → http://localhost:5000
+  Grafana → http://localhost:3000
+
+```
+
+
+    
+
+- ### Arquitetura com Docker Compose
+
+| Container | Use |
+|---|---|
+| API | FastAPI |
+| MLflow | Experimentos |
+| Prometheus | Métricas |
+| Grafana | Dashboard |
+
+- ### Fluxo mental
+```
+  compose → cria rede → sobe containers → conecta → executa serviços
+```
+
+- ### Arquitetura
+              ________________
+              │   Client     │
+              └──────┬───────┘
+                     ▼
+              ┌──────────────┐
+              │  FastAPI     │
+              └──────┬───────┘
+                     ▼
+              ┌──────────────┐
+              │  Model (MLP) │
+              └──────────────┘
+            ┌─────────┴─────────┐
+            ▼                   ▼
+      ┌──────────────┐  ┌──────────────┐
+      │  Prometheus  │  │    MLflow    │
+      └──────┬───────┘  └──────┬───────┘
+             ▼                 ▼
+      ┌──────────────┐  ┌──────────────┐
+      │    Grafana   │  │  Experiments │
+      └──────────────┘  └──────────────┘
+
+- ### Ciclo de vida
+  ### Start
+  ```
+    docker-compose up
+  ```
+  ### Stop
+  ```
+    docker-compose down
+  ```
+  ### Rebuild
+  ```
+    docker-compose up --build
+  ```
+  ### Rodar em background
+  ```
+    docker-compose up -d
+  ```
+  ### Logs
+  ```
+    docker-compose logs -f churn-api
+  ```
+  ### Estado do sistema
+  ```
+    docker ps
+  ```
 ---
 
 ## Documentação adicional
