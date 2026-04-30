@@ -3,6 +3,8 @@ from pathlib import Path
 SRC_DIR = Path(__file__).resolve().parent.parent
 
 BASE_DIR = SRC_DIR.parent
+#DATA_PATH = BASE_DIR / "data" / "raw" / "dataset_churn_5000_desbalanceado.xlsx"
+#DATA_PATH = BASE_DIR / "data" / "raw" / "dataset_churn_full_50_50.xlsx"
 DATA_PATH = BASE_DIR / "data" / "raw" / "Telco_customer_churn.xlsx"
 
 MODEL_DIR = SRC_DIR / "saved_models"

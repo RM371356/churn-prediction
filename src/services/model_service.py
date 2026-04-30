@@ -1,99 +1,80 @@
-from typing import Any
-
 import joblib
 import pandas as pd
 import torch
 
-from src.config.settings import MODEL_PATH, PREPROCESSOR_PATH, THRESHOLD
+from src.config.settings import MODEL_PATH, PREPROCESSOR_PATH
 from src.model.mlp import MLP
-from src.monitoring.business_monitor import log_prediction
-from src.utils.logger import logger
 
-# Inicializa recursos globais
 _MODEL = None
 _PREPROCESSOR = None
+_THRESHOLD = 0.5
 
-def get_resources():
+
+def load_resources():
     """
-        Carrega artefatos sob demanda (lazy load) e armazena em cache no escopo global.
-        Retorna o modelo e o pré-processador carregados, garantindo que sejam carregados apenas uma vez durante a vida útil da aplicação.
+        Carrega o modelo, o pré-processador e o threshold do disco, 
+        garantindo que os recursos necessários para a inferência estejam disponíveis na memória, 
+        e evitando recarregamentos desnecessários em chamadas subsequentes à função de previsão, 
+        otimizando o desempenho e a eficiência do serviço de modelo ao manter os recursos carregados em memória após a primeira carga, 
+        e garantindo que o modelo e o pré-processador sejam carregados apenas uma vez durante a vida útil do serviço, 
+        melhorando a eficiência e a velocidade das previsões subsequentes. 
         Returns:
-            tuple: Uma tupla contendo o modelo e o pré-processador carregados.
+            tuple: Uma tupla contendo o modelo carregado, o pré-processador e o threshold para classificação.
     """
-    # Usar variáveis globais para armazenar o modelo e o pré-processador carregados
-    global _MODEL, _PREPROCESSOR
+    global _MODEL, _PREPROCESSOR, _THRESHOLD
+
     if _MODEL is None:
-        
-        # Carregar modelo e pré-processador do disco apenas na primeira chamada
-        model_data = torch.load(MODEL_PATH)
-        _PREPROCESSOR = joblib.load(PREPROCESSOR_PATH)
-        
-        # Criar instância do modelo e carregar os pesos
-        _MODEL = MLP(model_data["input_dim"])
-        _MODEL.load_state_dict(model_data["model_state"])
+        data = torch.load(MODEL_PATH)
+
+        _MODEL = MLP(data["input_dim"])
+        _MODEL.load_state_dict(data["model_state"])
         _MODEL.eval()
-        
-    return _MODEL, _PREPROCESSOR
 
-def predict(data: dict[str, Any]) -> dict[str, float]:
-    """
-        Realiza a previsão de churn para um cliente com base nos dados de entrada fornecidos.
+        _PREPROCESSOR = joblib.load(PREPROCESSOR_PATH)
+        _THRESHOLD = data.get("threshold", 0.5)
+
+    return _MODEL, _PREPROCESSOR, _THRESHOLD
+
+
+def predict(data: dict):
+    """        
+        Realiza a previsão de churn com base nos dados de entrada fornecidos, utilizando o modelo e o pré-processador carregados,
+        e aplicando o threshold para determinar a classe de churn ou não churn, 
+        garantindo que os dados de entrada sejam pré-processados corretamente antes de serem alimentados no modelo, 
+        e que a saída da previsão seja interpretada de acordo com o threshold definido para fornecer uma resposta clara sobre a probabilidade de churn e a classificação resultante.
         Args:
-            data (Dict[str, Any]): Um dicionário contendo os dados de entrada para a previsão, onde as chaves são os nomes das features e os valores são os valores correspondentes.
+            data (dict): Um dicionário contendo os dados de entrada para a previsão, onde as chaves correspondem aos nomes das features esperadas pelo modelo, 
+            e os valores são os dados específicos para a previsão.
         Returns:
-            Dict[str, float]: Um dicionário contendo a probabilidade de churn e a previsão binária.
+            dict: Um dicionário contendo a probabilidade prevista de churn e a classificação binária (1 para churn, 0 para não churn) com base no threshold definido.
     """
-    # Carregar recursos (modelo e pré-processador)
-    model, preprocessor = get_resources()
+    model, preprocessor, threshold = load_resources()
 
-    # Criar DataFrame a partir do dicionário de entrada
     df = pd.DataFrame([data])
-    df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
+    df.columns = df.columns.str.lower().str.replace(" ", "_")
 
-    # Alinhar colunas com o que o pré-processador espera (adicionar colunas ausentes como None)
     expected_cols = preprocessor.feature_names_in_
-    
-    # Garantir que todas as colunas esperadas estejam presentes, preenchendo as ausentes com None
+
     for col in expected_cols:
         if col not in df.columns:
             df[col] = None
-    
-    # Reordenar colunas para garantir que estejam na ordem esperada pelo modelo
-    df = df[list(expected_cols)]
 
-    # Converter tipos de dados para evitar erros no pipeline (ex: colunas numéricas como string)
-    df = df.convert_dtypes() 
+    df = df[expected_cols]
 
-    # Transformar os dados usando o pré-processador
+    for col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors="ignore")
+        if df[col].dtype == "object":
+            df[col] = df[col].astype("string")
+
+    X = preprocessor.transform(df)
+    X = X.to_numpy() if hasattr(X, "to_numpy") else X
+
+    X = torch.tensor(X, dtype=torch.float32)
+
     with torch.no_grad():
-        # O pré-processador pode retornar um DataFrame ou um array, dependendo da configuração. Garantir que seja um array para o modelo.
-        X = preprocessor.transform(df)
-        
-        # Converter para numpy array se for um DataFrame, garantindo compatibilidade com o modelo PyTorch
-        X = X.to_numpy() if hasattr(X, "to_numpy") else X
-        
-        # Converter para tensor do PyTorch
-        X_tensor = torch.tensor(X, dtype=torch.float32)
-        
-        # Fazer a previsão usando o modelo carregado
-        logits = model(X_tensor)
+        prob = torch.sigmoid(model(X)).item()
 
-        # Aplicar sigmoid para obter a probabilidade de churn
-        prob = torch.sigmoid(logits).item()
-        
-        prediction = int(prob > THRESHOLD)
-
-        log_prediction(
-            customer_id=data.get("customerid", "unknown"),
-            prediction=prediction,
-            probability=prob,
-        )
-
-        logger.info(
-            f"prediction_generated probability={round(prob, 4)} prediction={prediction}"
-        )
-
-        return {
-            "probability": prob,
-            "prediction": prediction,
-        }
+    return {
+        "probability": prob,
+        "prediction": int(prob > threshold)
+    }

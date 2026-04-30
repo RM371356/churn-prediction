@@ -7,6 +7,20 @@ from src.utils.logger import logger
 
 BASELINE_PATH = Path("src/saved_models/baseline_stats.json")
 
+EXCLUDED_COLUMNS = [
+    "customerid",
+    "customer_id",
+    "churn_value",
+    "churn_label",
+    "churn_score",
+    "churn_reason",
+    "cltv",
+    "latitude",
+    "longitude",
+    "zip_code",
+    "count",
+    "lat_long",
+]
 
 def save_baseline(df: pd.DataFrame):
     """
@@ -15,6 +29,9 @@ def save_baseline(df: pd.DataFrame):
             df (pd.DataFrame): O DataFrame contendo os dados para calcular as estatísticas de baseline.
     """
     stats = {}
+
+    # remove colunas indesejadas
+    df = df.drop(columns=EXCLUDED_COLUMNS, errors="ignore")
 
     # Calcular a média e o desvio padrão para cada coluna numérica do DataFrame e armazenar os resultados em um dicionário
     for col in df.select_dtypes(include=["number"]).columns:

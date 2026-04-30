@@ -8,7 +8,7 @@ from src.utils.logger import logger
 PREDICTIONS_LOG_PATH = Path("monitoring/predictions_log.csv")
 
 
-def log_prediction(customer_id, prediction, probability, actual=None):
+def log_prediction(customer_id, prediction, probability):
     """Registra a previsão de churn para um cliente específico, incluindo a probabilidade prevista e o rótulo real (se disponível).
     Args:        customer_id (str): O identificador único do cliente.
         prediction (int): A previsão binária de churn (0 ou 1).
@@ -21,8 +21,7 @@ def log_prediction(customer_id, prediction, probability, actual=None):
             {
                 "customer_id": customer_id,
                 "prediction": prediction,
-                "probability": probability,
-                "actual": actual,
+                "probability": probability
             }
         ]
     )

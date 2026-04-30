@@ -1,4 +1,3 @@
-# O arquivo prepare_data.py é responsável por carregar os dados brutos, realizar o pré-processamento e preparar os dados para o treinamento do modelo.
 import numpy as np
 import pandas as pd
 import torch
@@ -13,77 +12,80 @@ from src.monitoring.drift_monitor import save_baseline
 
 def load_and_prepare(path):
     """
-        Carrega os dados de um arquivo Excel, realiza o pré-processamento e retorna os dados prontos para treinamento e teste, além do preprocessor para uso futuro.
+        Carrega os dados de um arquivo Excel, realiza o pré-processamento necessário, e retorna os conjuntos de treino e teste para as features e o target, 
+        juntamente com o pré-processador utilizado. A função também salva as estatísticas de baseline para as features numéricas, 
+        que serão usadas posteriormente para monitorar o drift dos dados. O pré-processamento inclui a imputação de valores ausentes, 
+        o escalonamento das features numéricas e a codificação das features categóricas usando OneHotEncoder, 
+        garantindo que os dados estejam prontos para o treinamento do modelo de previsão de churn, 
+        e que as estatísticas de baseline estejam disponíveis para a detecção de drift no futuro.
         Args:
-            path: O caminho para o arquivo Excel contendo os dados.
+            path (str): O caminho para o arquivo Excel contendo os dados a serem carregados e preparados.
         Returns:
-            Os dados preparados para treinamento e teste, além do preprocessor.
+            tuple: Uma tupla contendo os conjuntos de treino e teste para as features e o target, juntamente com o pré-processador utilizado.
     """
     df = pd.read_excel(path)
-    
-    # Padronizar nomes das colunas (remover espaços, colocar em minúsculas)
+
     df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
-    
-    # Definir target e colunas a serem removidas
+
     target_col = "churn_value"
-    drop_cols = ["customerid", "count", "lat_long", "churn_label", 
-                 "churn_score", "churn_reason", "city", "country", "state", "zip_code"]
-    
-    # Remover colunas irrelevantes
+
+    # remover colunas irrelevantes ou que possam causar vazamento de dados, garantindo que o modelo seja treinado apenas com as features relevantes para a previsão de churn
+    drop_cols = [
+        "customerid", "count", "country", "state", "city",
+        "zip_code", "lat_long", "latitude", "longitude",
+        "churn_label", "churn_score", "cltv", "churn_reason",
+    ]
+
     df = df.drop(columns=drop_cols, errors="ignore")
 
     X = df.drop(columns=[target_col])
     y = df[target_col]
 
-    # Salvar as estatísticas de baseline para as colunas numéricas, que serão usadas posteriormente para detectar drift nos dados de produção
-    save_baseline(df)
-    print("Baseline gerado com sucesso")
+    # salvar as estatísticas de baseline para as features numéricas, que serão usadas posteriormente para monitorar o drift dos dados
+    save_baseline(X)
 
-    # Identificar colunas numéricas e categóricas
+    # identificar colunas numéricas e categóricas para aplicar os pipelines de pré-processamento adequados
     num_cols = X.select_dtypes(include=np.number).columns
     cat_cols = X.select_dtypes(include=["object", "string", "category"]).columns
 
-    # Preencher valores faltantes em colunas categóricas com "missing" e garantir que sejam do tipo string
+    # garantir que as colunas categóricas sejam tratadas como strings e que os valores ausentes sejam preenchidos com uma categoria "missing" para evitar problemas durante a codificação
     X[cat_cols] = X[cat_cols].fillna("missing").astype("string")
 
-    # Pipeline para colunas numéricas: preenche valores faltantes e normaliza
+    # definir pipelines de pré-processamento para colunas numéricas e categóricas, garantindo que os dados sejam adequadamente transformados para o treinamento do modelo
     num_pipeline = Pipeline([
         ("imputer", SimpleImputer(strategy="median")),
         ("scaler", StandardScaler())
     ])
 
-    # Pipeline para colunas categóricas: preenche valores faltantes e aplica one-hot encoding
+    # o pipeline para colunas categóricas inclui a imputação de valores ausentes com a categoria "missing" e a codificação usando OneHotEncoder
     cat_pipeline = Pipeline([
         ("imputer", SimpleImputer(strategy="most_frequent")),
         ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False))
     ])
 
-    # Combinação dos pipelines
+    # combinar os pipelines de pré-processamento para colunas numéricas e categóricas usando ColumnTransformer
     preprocessor = ColumnTransformer([
         ("num", num_pipeline, num_cols),
         ("cat", cat_pipeline, cat_cols)
     ])
-    
-    # Configura o output do pipeline para ser um DataFrame, facilitando a conversão para tensor depois
+
+    # aplicar o pré-processamento aos dados, garantindo que as features sejam transformadas de acordo com os pipelines definidos
     preprocessor.set_output(transform="pandas")
 
-    # split antes do fit_transform para evitar vazamento de dados
+    # dividir os dados em conjuntos de treino e teste, garantindo que a divisão seja estratificada com base no target para manter a proporção de classes em ambos os conjuntos
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
 
-    # transformar os dados usando o pipeline APENAS AGORA, depois de garantir que estão no formato correto
-    X_train_transformed = preprocessor.fit_transform(X_train)
-    X_test_transformed = preprocessor.transform(X_test)
+    # aplicar o pré-processamento aos conjuntos de treino e teste, garantindo que as transformações 
+    # sejam aplicadas de forma consistente e que os dados estejam prontos para o treinamento do modelo
+    X_train = preprocessor.fit_transform(X_train)
+    X_test = preprocessor.transform(X_test)
 
-    # converter para tensor (PyTorch exige tensores numéricos)
-    # O pipeline já retorna um DataFrame, então podemos converter diretamente para numpy e depois para tensor
-    X_train = torch.tensor(X_train_transformed.to_numpy(), dtype=torch.float32)
-    X_test = torch.tensor(X_test_transformed.to_numpy(), dtype=torch.float32)
-    
-    # Converter target para tensor
-    y_train = torch.tensor(y_train.values, dtype=torch.float32)
-    y_test = torch.tensor(y_test.values, dtype=torch.float32)
-
-    # Retornar os dados preparados e o preprocessor
-    return X_train, X_test, y_train, y_test, preprocessor
+    return (
+        torch.tensor(X_train.to_numpy(), dtype=torch.float32),
+        torch.tensor(X_test.to_numpy(), dtype=torch.float32),
+        torch.tensor(y_train.values, dtype=torch.float32),
+        torch.tensor(y_test.values, dtype=torch.float32),
+        preprocessor,
+    )

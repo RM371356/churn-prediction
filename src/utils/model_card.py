@@ -9,7 +9,8 @@ def generate_model_card(
     threshold: float,
     dataset_info: dict,
     model_params: dict,
-    output_path: str = "model_card.md"
+    output_path: str = "model_card.md",
+    pos_weight: float = 1.0
 ):
     """
         Gera um model card automático em Markdown com base nas métricas de avaliação, informações do dataset e parâmetros do modelo.
@@ -20,6 +21,7 @@ def generate_model_card(
             dataset_info (dict): Um dicionário contendo informações sobre o dataset utilizado para treinamento, como número de amostras, número de features e distribuição do target.
             model_params (dict): Um dicionário contendo os parâmetros do modelo, como número de features de entrada, número de épocas, batch size, etc., para incluir no model card e fornecer contexto sobre a configuração do modelo.
             output_path (str): O caminho onde o model card em Markdown será salvo. O padrão é "model_card.md".
+            pos_weight (float): O peso atribuído à classe positiva para lidar com desbalanceamento de classes. O valor padrão é 1.0, indicando que não há ajuste de peso. Valores maiores que 1.0 aumentam a importância da classe positiva (churn) durante o treinamento, ajudando a melhorar o recall para essa classe.
         Returns:
             None: A função salva o model card em um arquivo Markdown no caminho especificado.
     """
@@ -44,9 +46,8 @@ O objetivo é identificar clientes com alta probabilidade de cancelamento para a
 
 - Número de registros: {dataset_info.get("n_samples")}
 - Número de features: {dataset_info.get("n_features")}
-- Distribuição target:
-{dataset_info.get("target_distribution")}
-
+- Distribuição do target:
+{json.dumps(dataset_info.get("target_distribution"), indent=2)}
 ---
 
 ## Modelo
@@ -60,6 +61,7 @@ O objetivo é identificar clientes com alta probabilidade de cancelamento para a
 - Treinado por {model_params.get("epochs")} épocas com batch size de {model_params.get("batch_size")}
 - Early stopping aplicado para evitar overfitting
 - Threshold de classificação ajustado para maximizar recall, reduzindo falsos negativos
+- Peso para classe positiva: {pos_weight:.2f}
 - Modelo avaliado usando métricas de acurácia, precisão, recall, F1-score e AUC-ROC
 - Modelo salvo para uso em produção via API REST (FastAPI)
 

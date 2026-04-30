@@ -2,7 +2,7 @@
 # Model Card — Churn Prediction MLP
 
 ## Data
-2026-04-28 22:45
+2026-04-29 20:52
 
 ---
 
@@ -15,10 +15,12 @@ O objetivo é identificar clientes com alta probabilidade de cancelamento para a
 ## Dados
 
 - Número de registros: 5634
-- Número de features: 5324
-- Distribuição target:
-{0.0: 0.7346467873624423, 1.0: 0.2653532126375577}
-
+- Número de features: 5321
+- Distribuição do target:
+{
+  "churn": 1495,
+  "no_churn": 4139
+}
 ---
 
 ## Modelo
@@ -26,17 +28,18 @@ O objetivo é identificar clientes com alta probabilidade de cancelamento para a
 - Tipo: MLP (PyTorch)
 - Parâmetros:
 {
-  "input_dim": 5324,
-  "epochs": 100,
+  "input_dim": 5321,
+  "epochs": 6.4034013950731605,
   "batch_size": 64,
   "early_stopping": true
 }
 - Pré-processamento: Imputação de valores ausentes e escalonamento (StandardScaler)
 - Treinado com BCEWithLogitsLoss e otimizador Adam
 - Peso para classe positiva ajustado para lidar com desbalanceamento
-- Treinado por 100 épocas com batch size de 64
+- Treinado por 6.4034013950731605 épocas com batch size de 64
 - Early stopping aplicado para evitar overfitting
 - Threshold de classificação ajustado para maximizar recall, reduzindo falsos negativos
+- Peso para classe positiva: 2.77
 - Modelo avaliado usando métricas de acurácia, precisão, recall, F1-score e AUC-ROC
 - Modelo salvo para uso em produção via API REST (FastAPI)
 
@@ -44,17 +47,17 @@ O objetivo é identificar clientes com alta probabilidade de cancelamento para a
 
 ## Métricas
 
-- Accuracy: 0.7402
-- Precision: 0.5076
-- Recall: 0.7166
-- F1-score: 0.5942
-- ROC-AUC: 0.8052
+- Accuracy: 0.7637
+- Precision: 0.5411
+- Recall: 0.7219
+- F1-score: 0.6186
+- ROC-AUC: 0.8270
 
 ---
 
 ## Threshold
 
-- Valor utilizado: 0.5
+- Valor utilizado: 0.30000000000000004
 - Estratégia: Ajustado para maximizar recall (reduzir falso negativo), importante para retenção de clientes.
 - Sensível ao balanceamento entre precisão e recall, escolha do threshold impacta diretamente na performance do modelo em produção.
 - Recomendação: Monitorar e ajustar o threshold periodicamente com base no feedback do modelo em produção para manter a performance ideal.
