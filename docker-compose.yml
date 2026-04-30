@@ -1,20 +1,19 @@
+# Docker Compose para Churn API, MLflow, Prometheus e Grafana
 services:
 
-  # 🔹 API de inferência
   churn-api:
-    build: .
-    container_name: churn-api
+    build:
+      context: .
+      dockerfile: Dockerfile 
+    container_name: churn-api 
     ports:
       - "8000:8000"
     volumes:
       - .:/app
     environment:
       - ENV=production
-    depends_on:
-      - mlflow
     restart: always
 
-  # 🔹 MLflow (tracking)
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.19.0
     container_name: mlflow
@@ -24,9 +23,10 @@ services:
       mlflow server
       --host 0.0.0.0
       --port 5000
+    volumes:
+      - ./mlruns:/mlruns
     restart: always
 
-  # 🔹 Prometheus (métricas)
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -36,7 +36,6 @@ services:
       - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml
     restart: always
 
-  # 🔹 Grafana (dashboard)
   grafana:
     image: grafana/grafana
     container_name: grafana
