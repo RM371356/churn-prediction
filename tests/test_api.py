@@ -26,6 +26,7 @@ def client():
 
 
 VALID_PAYLOAD = {
+    "customer_id": "TEST-0001",
     "gender": "Male",
     "tenure": 24,
     "monthly_charges": 79.85,

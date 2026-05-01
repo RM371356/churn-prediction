@@ -98,9 +98,9 @@ class TestDependencyAudit:
             [sys.executable, "-m", "pip_audit"],
             capture_output=True, text=True, timeout=120,
         )
+        if "no module named" in result.stderr.lower():
+            pytest.skip("pip-audit not installed")
         if result.returncode != 0 and "No known vulnerabilities found" not in result.stdout:
-            if "no module named" in result.stderr.lower() or result.returncode == 1:
-                pytest.skip("pip-audit not installed")
             vulns = result.stdout
             critical_pattern = re.compile(r"(CRITICAL|HIGH)", re.IGNORECASE)
             if critical_pattern.search(vulns):

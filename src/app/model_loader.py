@@ -9,7 +9,7 @@ INPUT_DIM = 4
 model = MLP(INPUT_DIM)
 
 # Carregar os pesos do modelo salvo
-saved = torch.load("saved_models/model.pt", map_location="cpu")
+saved = torch.load("saved_models/model.pt", map_location="cpu", weights_only=False)
 
 # Atualizar o modelo com os pesos carregados
 INPUT_DIM = saved['input_dim']

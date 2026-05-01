@@ -17,7 +17,7 @@ def load_model(input_dim):
     model = MLP(input_dim)
 
     # Carregar os pesos do modelo salvo
-    model.load_state_dict(torch.load("saved_models/model.pt"))
+    model.load_state_dict(torch.load("saved_models/model.pt", weights_only=False))
     
     # Colocar o modelo em modo de avaliação
     model.eval()

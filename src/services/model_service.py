@@ -24,7 +24,7 @@ def load_resources():
     global _MODEL, _PREPROCESSOR, _THRESHOLD
 
     if _MODEL is None:
-        data = torch.load(MODEL_PATH)
+        data = torch.load(MODEL_PATH, weights_only=False)
 
         _MODEL = MLP(data["input_dim"])
         _MODEL.load_state_dict(data["model_state"])
